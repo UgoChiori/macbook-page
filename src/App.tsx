@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { useRef } from "react";
+import * as THREE from "three";
 
-function App() {
-  const [count, setCount] = useState(0)
+const RotatingCube = () => {
+  const meshRef = useRef<THREE.Mesh>(null);
+useFrame(() => {
+  if (meshRef.current) {
+    meshRef.current.rotation.y += 0.01;
+    meshRef.current.rotation.x += 0.01;
+  }
+});
+
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <mesh ref={meshRef} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
+      <cylinderGeometry args={[1, 1, 1, 32]} />
+      <meshStandardMaterial color="#468585"  emissive="#468585" emissiveIntensity={0.5} />
+    </mesh>
+  );
 }
+const App = () => {
+  return (
+    <Canvas
+      style={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <OrbitControls enableZoom enablePan enableRotate />
+      <directionalLight  position={[1, 1, 1]} intensity={10} color={0x9cdba6} />
+      <color attach="background" args={["#F0F0F0"]} />
 
-export default App
+      <RotatingCube />
+    </Canvas>
+  );
+};
+
+export default App;
