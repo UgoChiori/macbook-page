@@ -1,0 +1,108 @@
+import React, { useRef } from "react";
+import * as THREE from "three";
+import MacbookModel16 from "../models/Macbook-16";
+import { PresentationControls } from "@react-three/drei";
+import MacbookModel14 from "../models/Macbook-14";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+type Props = {
+    scale: number;
+    isMobile: boolean;
+}
+
+const ANIMATION_DURATION = 1;
+const OFFSET_DISTANCE = 5;
+
+
+
+const fadeMeshes = (
+  group: THREE.Object3D | null,
+  opacity: number
+) => {
+  if (!group) return;
+
+  group.traverse((child: THREE.Object3D) => {
+    if ((child as THREE.Mesh).isMesh) {
+      const mesh = child as THREE.Mesh;
+
+      if (mesh.material) {
+        const material = mesh.material as THREE.Material & {
+          opacity: number;
+          transparent: boolean;
+        };
+
+        material.transparent = true;
+
+        gsap.to(material, {
+          opacity,
+          duration: ANIMATION_DURATION,
+        });
+      }
+    }
+  });
+};
+
+const moveGroup = (group: THREE.Group | null, x: number): void => {
+  if (!group) return;
+
+  gsap.to(group.position, {
+    x,
+    duration: ANIMATION_DURATION,
+  });
+};
+
+
+
+
+
+const ModelSwitcher: React.FC<Props> = ({scale, isMobile}: Props) => {
+    const smallMacbookRef = useRef<THREE.Group>(null);
+    const largeMacbookRef = useRef<THREE.Group>(null);
+
+    const showLargeMacbook = scale === 0.08 || scale === 0.05;
+
+        useGSAP(() => {
+            if (showLargeMacbook) {
+            moveGroup(smallMacbookRef.current,  -OFFSET_DISTANCE );
+            moveGroup(largeMacbookRef.current, 0);
+
+            fadeMeshes(smallMacbookRef.current, 0);
+            fadeMeshes(largeMacbookRef.current, 1);
+            } else {
+            moveGroup(smallMacbookRef.current, 0);
+            moveGroup(largeMacbookRef.current, OFFSET_DISTANCE);
+
+            fadeMeshes(smallMacbookRef.current, 1);
+            fadeMeshes(largeMacbookRef.current, 0);
+            }
+        }, [scale]);
+
+    const controlsConfig = {
+        global: true,
+        cursor: true,
+        snap: true,
+        speed: 1,
+        zoom: 1,
+        rotation: [0, 0, 0] as [number, number, number],
+        // polar: [-Math.PI / 2, Math.PI / 2],
+        // azimuth: [-Infinity, Infinity],
+        config: { mass: 1, tension:0, friction: 26 },
+    }
+
+  return (
+  <>
+  <PresentationControls {...controlsConfig}>
+    <group ref={largeMacbookRef}>
+   <MacbookModel16 scale={isMobile ? 0.05 : 0.08} />
+    </group>
+  </PresentationControls >
+    <PresentationControls>
+    <group ref={smallMacbookRef}>
+   <MacbookModel14 scale={isMobile ? 0.03 : 0.06} />
+    </group>
+  </PresentationControls>
+  </>
+  )
+}
+
+export default ModelSwitcher
