@@ -84,7 +84,7 @@ const ModelSwitcher: React.FC<Props> = ({scale, isMobile}: Props) => {
         speed: 1,
         zoom: 1,
         rotation: [0, 0, 0] as [number, number, number],
-        // polar: [-Math.PI / 2, Math.PI / 2],
+        // polar: [-Math.PI , Math.PI ],
         // azimuth: [-Infinity, Infinity],
         config: { mass: 1, tension:0, friction: 26 },
     }
